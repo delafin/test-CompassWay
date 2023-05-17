@@ -1,10 +1,12 @@
 import { type GetServerSidePropsContext } from 'next';
-import { getServerSession, type NextAuthOptions, type DefaultSession } from 'next-auth';
+import { getServerSession, type NextAuthOptions, type DefaultSession, User } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
+import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { env } from '~/env.mjs';
 import { prisma, userValidationEmail } from '~server/db';
 import { compare } from 'bcryptjs';
+
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.
@@ -61,7 +63,7 @@ export const authOptions: NextAuthOptions = {
 	},
 	adapter: PrismaAdapter(prisma),
 	providers: [
-		CredentialProvider({
+		CredentialsProvider({
 			name: 'credentials',
 			credentials: {},
 			async authorize(credentials, req) {
@@ -114,10 +116,10 @@ export const getServerAuthSession = (ctx: {
 }) => {
 	return getServerSession(ctx.req, ctx.res, authOptions);
 };
-function CredentialProvider(arg0: {
-	name: string;
-	credentials: {};
-	authorize(credentials: any, req: any): Promise<any>;
-}): import('next-auth/providers').Provider {
-	throw new Error('Function not implemented.');
-}
+// function CredentialProvider(arg0: {
+// 	name: string;
+// 	credentials: {};
+// 	authorize(credentials: any, req: any): Promise<any>;
+// }): import('next-auth/providers').Provider {
+// 	throw new Error('Function not implemented.');
+// }

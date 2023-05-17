@@ -19,7 +19,8 @@
     "baseUrl": ".",
     "paths": {
       "~/*": ["./src/*"],
-      "~server/*": ["./src/server/*"]
+      "~server/*": ["./src/server/*"],
+      "~ui/*": ["./src/common/components/*"],
     }
   },
   "include": [
