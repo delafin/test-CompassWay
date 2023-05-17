@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	@font-face {
+		font-family: 'Roboto';
+
+		font-display: swap;
+
+		src: url('../../public/fonts/Roboto-Bold.woff2') format('woff2'),
+			url('../../public/fonts/Roboto-Bold.woff') format('woff'),
+			url('../../public/fonts/Roboto-Bold.ttf') format('ttf'), local('Roboto Bold'), local('Roboto-Bold');
+
+		font-weight: 700;
+		font-style: normal;
+	}
+
+	@font-face {
+		font-family: 'Roboto';
+
+		font-display: swap;
+
+		src: url('../../public/fonts/Roboto-Medium.woff2') format('woff2'),
+			url('../../public/fonts/Roboto-Medium.woff') format('woff'),
+			url('../../public/fonts/Roboto-Medium.ttf') format('ttf'), local('Roboto Medium'),
+			local('Roboto-Medium');
+
+		font-weight: 500;
+		font-style: normal;
+	}
+
+	@font-face {
+		font-family: 'Roboto';
+
+		font-display: swap;
+
+		src: url('../../public/fonts/Roboto-Regular.woff2') format('woff2'),
+			url('../../public/fonts/Roboto-Regular.woff') format('woff'),
+			url('../../public/fonts/Roboto-Regular.ttf') format('ttf'), local('Roboto Regular'),
+			local('Roboto-Regular');
+
+		font-weight: 400;
+		font-style: normal;
+	}
+
+	body {
+		@apply bg-gray-100 font-roboto text-base font-medium leading-6 text-black;
+	}
+}
