@@ -1,6 +1,6 @@
 # Start
 
-- <code> npm run dev <code>
+- <code>npm run dev</code>
 
 ## Task:
 
