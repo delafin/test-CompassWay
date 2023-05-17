@@ -29,16 +29,18 @@ model Account {
     type              String
     provider          String
     providerAccountId String
-	refresh_token     String?  @db.Text // for postgresql, mysql or sqlserver
-	access_token      String?  @db.Text // for postgresql, mysql or sqlserver
+		refresh_token     String?  @db.Text // for postgresql, mysql or sqlserver
+		access_token      String?  @db.Text // for postgresql, mysql or sqlserver
     expires_at        Int?
     token_type        String?
     scope             String?
-	id_token          String?  @db.Text // for postgresql, mysql or sqlserver
+		id_token          String?  @db.Text // for postgresql, mysql or sqlserver
     session_state     String?
     user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+		
+		@@index([userId])
     @@unique([provider, providerAccountId])
+
 }
 
 model Session {
@@ -47,12 +49,15 @@ model Session {
     userId       String
     expires      DateTime
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+		@@index([userId])
 }
 
 model User {
     id            String    @id @default(cuid())
     name          String?
+		login         String?
     email         String?   @unique
+		password      String?
     emailVerified DateTime?
     image         String?
     accounts      Account[]

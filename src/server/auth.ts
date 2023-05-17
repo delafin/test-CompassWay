@@ -3,7 +3,7 @@ import { getServerSession, type NextAuthOptions, type DefaultSession } from 'nex
 import GoogleProvider from 'next-auth/providers/google';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { env } from '~/env.mjs';
-import { prisma } from '~/server/db';
+import { prisma, userValidationEmail } from '~server/db';
 import { compare } from 'bcryptjs';
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -81,9 +81,6 @@ export const authOptions: NextAuthOptions = {
 							throw new Error(`The login or password you entered is incorrect.`);
 						}
 					}
-					// console.log(user);
-
-					// return Promise.resolve(user);
 					return user;
 				} else {
 					throw new Error(`The login or password you entered is incorrect.`);
