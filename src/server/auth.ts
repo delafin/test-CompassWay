@@ -1,9 +1,10 @@
 import { type GetServerSidePropsContext } from 'next';
-import { type DefaultSession, type NextAuthOptions, User, getServerSession } from 'next-auth';
+import { type DefaultSession, type NextAuthOptions, getServerSession } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import { User as PrismaUser } from '@prisma/client';
 
 import { prisma, userValidationEmail } from '~server/db';
 
@@ -20,6 +21,7 @@ declare module 'next-auth' {
 	interface Session extends DefaultSession {
 		user: {
 			id: string;
+			login: string;
 			// ...other properties
 			// role: UserRole;
 		} & DefaultSession['user'];
@@ -34,9 +36,19 @@ declare module 'next-auth' {
 declare module 'next-auth/jwt/types' {
 	interface JWT extends DefaultJWT {
 		uid?: string;
+		login?: string;
 	}
 }
+// declare module 'next-auth' {
+// 	interface AdapterUser {
+// 		login?: string;
+// 	}
+// }
+declare module 'next-auth' {
+	interface User extends PrismaUser {}
+}
 
+// declare module 'next-auth/user'
 /**
  * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
  *
@@ -58,12 +70,14 @@ export const authOptions: NextAuthOptions = {
 		session: async ({ session, token }) => {
 			if (session?.user) {
 				session.user.id = token.uid!; // token.sub
+				session.user.login = token.login!;
 			}
 			return session;
 		},
 		jwt: async ({ user, token }) => {
 			if (user) {
 				token.uid = user.id;
+				token.login = user.login!;
 			}
 			return token;
 		},
@@ -84,7 +98,6 @@ export const authOptions: NextAuthOptions = {
 					};
 					// const user = async userValidationCredentials(credentials.email, credentials.password)
 					const user = await userValidationEmail(email);
-
 					if (!user || !user?.password) {
 						throw new Error(`The login or password you entered is incorrect.`);
 					} else {
@@ -93,6 +106,7 @@ export const authOptions: NextAuthOptions = {
 							throw new Error(`The login or password you entered is incorrect.`);
 						}
 					}
+					console.log(user);
 					return user;
 				} else {
 					throw new Error(`The login or password you entered is incorrect.`);

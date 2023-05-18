@@ -3,17 +3,15 @@ import { getServerSession } from 'next-auth/next';
 
 import { authOptions } from '~/server/auth';
 
-import List from '~ui/list/list';
-
-type TProps = {
+type THistory = {
 	children?: React.ReactNode;
 };
 
-const dashboard: NextPage<TProps> = ({}) => {
-	return <List />;
+const history: NextPage<THistory> = ({}) => {
+	return <div className=''>History</div>;
 };
 
-export default dashboard;
+export default history;
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
 	const session = await getServerSession(context.req, context.res, authOptions);

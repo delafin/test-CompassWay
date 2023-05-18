@@ -1,18 +1,28 @@
-import { type AppType } from "next/app";
-import { type Session } from "next-auth";
-import { SessionProvider } from "next-auth/react";
+import { type Session } from 'next-auth';
+import { SessionProvider } from 'next-auth/react';
+import { type AppType } from 'next/app';
 
-import "~/styles/globals.css";
+import Layout from '~/common/layout/layout';
+
+import '~/styles/globals.css';
 
 const MyApp: AppType<{ session: Session | null }> = ({
-  Component,
-  pageProps: { session, ...pageProps },
+	Component,
+	pageProps: { session, ...pageProps },
+	...appProps
 }) => {
-  return (
-    <SessionProvider session={session}>
-      <Component {...pageProps} />
-    </SessionProvider>
-  );
+	const getContent = () => {
+		// array of all the paths that doesn't need layout
+		if ([`/`].includes(appProps.router.pathname)) return <Component {...pageProps} />;
+
+		return (
+			<Layout>
+				<Component {...pageProps} />
+			</Layout>
+		);
+	};
+
+	return <SessionProvider session={session}>{getContent()}</SessionProvider>;
 };
 
 export default MyApp;

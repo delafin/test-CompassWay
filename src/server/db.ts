@@ -42,7 +42,7 @@ export async function userValidationCredentials(email: string, password: string)
 		}
 	});
 
-	return userResponse;
+	return userResponse as User;
 }
 
 export async function userCreate(data: PartialSelect<User, 'id' | 'image' | 'emailVerified'>) {
