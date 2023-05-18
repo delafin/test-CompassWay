@@ -30,5 +30,3 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 		props: {}
 	};
 };
-
-Home.getLayout = (page) => page;
