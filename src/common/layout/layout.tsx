@@ -53,11 +53,21 @@ const Layout: NextPage<TLayout> = ({ children }) => {
 						<div className='relative flex h-auto w-full items-start justify-start transition-all'>
 							<div className='w-full min-w-full rounded-lg bg-white p-6 dark:bg-[#221F2C]'>
 								<ul className='flex items-center justify-between gap-4 flex-col'>
-									<li className='block relative w-full font-medium cursor-pointer overflow-hidden rounded-md px-4 py-2 text-center text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 flex-shrink'>
-										<Link href={`/dashboard/`}>Send Email</Link>
+									<li className='w-full'>
+										<Link
+											className='block relative font-medium cursor-pointer overflow-hidden rounded-md px-4 py-2 text-center text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 flex-shrink'
+											href={`/dashboard/`}
+										>
+											Send Email
+										</Link>
 									</li>
-									<li className='block relative w-full font-medium cursor-pointer overflow-hidden rounded-md px-4 py-2 text-center text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 flex-shrink'>
-										<Link href={`/dashboard/history/`}>History</Link>
+									<li className='w-full'>
+										<Link
+											className='block relative font-medium cursor-pointer overflow-hidden rounded-md px-4 py-2 text-center text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 flex-shrink'
+											href={`/dashboard/history/`}
+										>
+											History
+										</Link>
 									</li>
 								</ul>
 							</div>
