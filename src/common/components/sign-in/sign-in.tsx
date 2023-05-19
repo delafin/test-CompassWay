@@ -107,14 +107,10 @@ const FormSignIn: NextPage<FormProps> = ({ isSignUp, setIsSignUp }) => {
 	}: {
 		touch: boolean | undefined;
 		error: string | undefined;
-		field: string;
+		field: keyof typeof formikSignIn.errors;
 	}) => {
 		const Component =
-			touch && error ? (
-				<div className='mt-1 pl-4 text-red-500'>
-					{formikSignIn.errors[field as keyof typeof formikSignIn.errors]}
-				</div>
-			) : null;
+			touch && error ? <div className='mt-1 pl-4 text-red-500'>{formikSignIn.errors[field]}</div> : null;
 		return Component;
 	};
 
@@ -355,14 +351,10 @@ export const FormSignUp: NextPage<FormProps> = ({ isSignUp, setIsSignUp }) => {
 	}: {
 		touch: boolean | undefined;
 		error: string | undefined;
-		field: string;
+		field: keyof typeof formikSignUp.errors;
 	}) => {
 		const Component =
-			touch && error ? (
-				<div className='mt-1 pl-4 text-red-500'>
-					{formikSignUp.errors[field as keyof typeof formikSignUp.errors]}
-				</div>
-			) : null;
+			touch && error ? <div className='mt-1 pl-4 text-red-500'>{formikSignUp.errors[field]}</div> : null;
 		return Component;
 	};
 

@@ -1,11 +1,7 @@
 {
-	"printWidth": 110,
-	"tabWidth": 2,
-	"useTabs": true,
-	"jsxSingleQuote": true,
-	"singleQuote": true,
-	"singleAttributePerLine": false,
-	"trailingComma": "none",
+	"plugins": ["@trivago/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss"],
+	"pluginSearchDirs": false,
+
 	"importOrder": [
 		"^(react)$|^(react-router-dom)$",
 		"^(next)",
@@ -23,6 +19,15 @@
 	],
 	"importOrderSeparation": true,
 	"importOrderSortSpecifiers": true,
+
+	"printWidth": 110,
+	"tabWidth": 2,
+	"useTabs": true,
+	"jsxSingleQuote": true,
+	"singleQuote": true,
+	"singleAttributePerLine": false,
+	"trailingComma": "none",
+
 	"overrides": [
 		{
 			"files": ["**/*.css", "**/*.scss", "**/*.html", ".prettierrc"],

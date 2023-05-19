@@ -74,7 +74,7 @@ const Layout: NextPage<TLayout> = ({ children }) => {
 						</div>
 					</div>
 					{/* Pages */}
-					<div className='relative overflow-hidden bg-transparent col-span-4 md:col-span-3 flex w-full min-w-full items-start justify-start transition-all rounded-lg bg-white p-6 dark:bg-[#221F2C] h-min'>
+					<div className='relative overflow-hidden bg-transparent col-span-4 md:col-span-3 flex w-full min-w-full items-start justify-center transition-all rounded-lg bg-white p-6 dark:bg-[#221F2C] h-min'>
 						{children}
 					</div>
 				</div>
