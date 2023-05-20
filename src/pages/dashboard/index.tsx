@@ -1,27 +1,24 @@
 import { GetServerSideProps, type NextPage } from 'next';
-import { Session } from 'next-auth';
+import { Session, User } from 'next-auth';
 import { getServerSession } from 'next-auth/next';
-import { useSession } from 'next-auth/react';
+import { getSession } from 'next-auth/react';
 
 import EmailForm from '~/common/components/email-form/email-form';
 import { authOptions } from '~/server/auth';
 
-type TProps = {
-	session: Session;
+type TDashboard = {
+	user: User;
 };
 
-const dashboard: NextPage<TProps> = ({
-	session: {
-		user: { id, email }
-	}
-}) => {
-	return <EmailForm userId={id} userEmail={email!} />;
+const dashboard: NextPage<TDashboard> = ({ user }) => {
+	return <EmailForm userId={user.id} userEmail={user.email!} />;
 };
 
 export default dashboard;
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
 	const session = await getServerSession(context.req, context.res, authOptions);
+	// const session = await getSession(context);
 	if (!session) {
 		return {
 			redirect: {
@@ -30,8 +27,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 			}
 		};
 	}
-
+	const { user } = session;
 	return {
-		props: { session }
+		props: { user }
 	};
 };

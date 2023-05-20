@@ -48,7 +48,7 @@
 		@apply bg-gray-100 font-roboto text-base font-medium leading-6 text-black;
 	}
 
-	/* Dicslamer: It's just Copy - Paste fro styling Rich Text Editor */
+	/* Dicslamer: It's just Copy - Paste for styling Rich Text Editor from Example */
 
 	.other h2 {
 		@apply mb-[7px] text-lg text-[#444];
@@ -289,7 +289,7 @@
 		@apply mr-3 flex h-5 w-5 select-none bg-contain leading-4;
 	}
 	.link-editor {
-		@apply absolute left-[-10000px] top-[-10000px] z-[100] -mt-1.5 w-full max-w-[300px] rounded-lg bg-white opacity-0 shadow-[0px_5px_10px_rgba(0,0,0,0.3)] transition-opacity duration-[0.5s];
+		@apply absolute left-[-10000px] top-[-10000px] z-[100] -mt-1.5 w-full max-w-[300px] rounded-lg bg-white opacity-0 shadow-[0px_5px_10px_rgba(0,0,0,0.3)] transition-opacity;
 	}
 	.link-editor .link-input {
 		@apply relative mx-3 my-2 box-border block w-[calc(100%_-_24px)] rounded-[15px] border-0 bg-[#eee] px-3 py-2 text-[15px] text-[rgb(5,5,5)] outline-none;

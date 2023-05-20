@@ -20,13 +20,10 @@ export default {
 			padding: '2rem'
 		},
 		extend: {
-			colors: {
-				// colorName: '#dc2626',
-			},
 			fontFamily: {
 				roboto: "'Roboto', sans-serif"
 			}
 		}
 	},
-	plugins: []
+	plugins: [require('tailwindcss-animate')]
 } satisfies Config;

@@ -2,9 +2,6 @@ import { useState } from 'react';
 
 import { NextPage } from 'next';
 
-import { CodeHighlightNode, CodeNode } from '@lexical/code';
-import { AutoLinkNode, LinkNode } from '@lexical/link';
-import { ListItemNode, ListNode } from '@lexical/list';
 import { TRANSFORMERS } from '@lexical/markdown';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { InitialConfigType, LexicalComposer } from '@lexical/react/LexicalComposer';
@@ -16,20 +13,19 @@ import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
-import { HeadingNode, QuoteNode } from '@lexical/rich-text';
-import { TableCellNode, TableNode, TableRowNode } from '@lexical/table';
 import clsx from 'clsx';
 import { useFormik } from 'formik';
 import { $getRoot, $getSelection, EditorState } from 'lexical';
 import * as Yup from 'yup';
-import AutoLinkPlugin from '~/common/utils/lexia-plugins/auto-link-plugin';
-import CodeHighlightPlugin from '~/common/utils/lexia-plugins/code-highlight-plugin';
-import ListMaxIndentLevelPlugin from '~/common/utils/lexia-plugins/list-max-indent-level-plugin';
-// import TreeViewPlugin from './plugins/TreeViewPlugin';
-import Theme from '~/common/utils/lexia-plugins/theme';
-import ToolbarPlugin from '~/common/utils/lexia-plugins/toolbar-plugin';
-import { fetchNewLetter } from '~/common/utils/utils';
+import { fetchNewLetter } from '~/common/lib/utils/prisma';
+import AutoLinkPlugin from '~lib/utils/lexia-configs/auto-link-plugin';
+import CodeHighlightPlugin from '~lib/utils/lexia-configs/code-highlight-plugin';
+import { lexicalConfig } from '~lib/utils/lexia-configs/lexia-config';
+import ListMaxIndentLevelPlugin from '~lib/utils/lexia-configs/list-max-indent-level-plugin';
+import Theme from '~lib/utils/lexia-configs/theme';
+import ToolbarPlugin from '~lib/utils/lexia-configs/toolbar-plugin';
 
+// import TreeViewPlugin from './plugins/TreeViewPlugin';
 import StatusMsg from '../status-msg/status-msg';
 
 type TProps = {
@@ -51,30 +47,30 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId }) => {
 		);
 	}
 
-	const editorConfig: InitialConfigType = {
-		// The editor theme
-		theme: Theme,
-		namespace: 'en',
-		// Handling of errors during update
-		onError(error: Error) {
-			throw error;
-		},
-		// Any custom nodes go here
-		nodes: [
-			HeadingNode,
-			ListNode,
-			ListItemNode,
-			QuoteNode,
-			CodeNode,
-			CodeHighlightNode,
-			TableNode,
-			TableCellNode,
-			TableRowNode,
-			AutoLinkNode,
-			LinkNode
-		]
-		// editorState: editorStateJSONString
-	};
+	// const editorConfig: InitialConfigType = {
+	// 	// The editor theme
+	// 	theme: Theme,
+	// 	namespace: 'en',
+	// 	// Handling of errors during update
+	// 	onError(error: Error) {
+	// 		throw error;
+	// 	},
+	// 	// Any custom nodes go here
+	// 	nodes: [
+	// 		HeadingNode,
+	// 		ListNode,
+	// 		ListItemNode,
+	// 		QuoteNode,
+	// 		CodeNode,
+	// 		CodeHighlightNode,
+	// 		TableNode,
+	// 		TableCellNode,
+	// 		TableRowNode,
+	// 		AutoLinkNode,
+	// 		LinkNode
+	// 	]
+	// 	// editorState: editorStateJSONString
+	// };
 
 	// function onChange(editorState: EditorState) {
 	// 	editorState.read(() => {
@@ -109,11 +105,7 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId }) => {
 				.required('This field is required!')
 				.min(3, 'Please, use at least 3 characters!')
 				.max(50, 'Please, use less than 50 characters!'),
-			letterBody: Yup.object()
-				// .typeError('Incorrect data type!')
-				.required('This field is required!')
-			// .min(3, 'Please, use at least 3 characters!')
-			// .max(350, 'Please, use less than 350 characters!')
+			letterBody: Yup.string().typeError('Incorrect data type!').required('This field is required!')
 		}),
 		onSubmit: async (values, { setSubmitting, resetForm }) => {
 			setErrorMsg(() => '');
@@ -152,8 +144,8 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId }) => {
 
 	console.log(formikSendEmail.values.letterBody);
 	return (
-		<section className='text-black'>
-			<div className='container'>
+		<section className='text-black w-full'>
+			<div className=''>
 				{/* Formik */}
 				<form
 					onSubmit={formikSendEmail.handleSubmit}
@@ -279,8 +271,8 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId }) => {
 					</div>
 
 					{/* Rich Text */}
-					<LexicalComposer initialConfig={editorConfig}>
-						<div className='text-black relative leading-5 font-normal text-left mx-auto my-5 rounded-t-[10px] rounded-sm'>
+					<LexicalComposer initialConfig={lexicalConfig('')}>
+						<div className='text-black relative leading-5 font-normal text-left mx-auto my-5 rounded-t-[10px] rounded-sm w-full'>
 							<ToolbarPlugin />
 							<div className='relative bg-white'>
 								<RichTextPlugin
@@ -312,8 +304,9 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId }) => {
 								<ListMaxIndentLevelPlugin maxDepth={7} />
 								<MarkdownShortcutPlugin transformers={TRANSFORMERS} />
 								<OnChangePlugin
-									onChange={async (editorState) => {
-										await formikSendEmail.setFieldValue('letterBody', JSON.stringify(editorState));
+									onChange={(editorState) => {
+										console.log('coly', JSON.stringify(editorState));
+										formikSendEmail.setFieldValue('letterBody', JSON.stringify(editorState));
 									}}
 								/>
 							</div>

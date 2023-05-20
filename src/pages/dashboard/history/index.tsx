@@ -3,12 +3,16 @@ import { getServerSession } from 'next-auth/next';
 
 import { authOptions } from '~/server/auth';
 
+import { columns } from '~ui/data-table/columns';
+import { payments } from '~ui/data-table/data';
+import { DataTable } from '~ui/data-table/data-table-pagination';
+
 type THistory = {
 	children?: React.ReactNode;
 };
 
 const history: NextPage<THistory> = ({}) => {
-	return <div className=''>History</div>;
+	return <DataTable columns={columns} data={payments} />;
 };
 
 export default history;
