@@ -54,6 +54,7 @@ model Session {
 
 model User {
     id            String    @id @default(cuid())
+		sender				Int 			@unique @default(autoincrement())
     name          String?
 		login         String?
     email         String?   @unique

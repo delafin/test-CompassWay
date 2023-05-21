@@ -4,7 +4,7 @@ import { NextPage } from 'next';
 
 import { TRANSFORMERS } from '@lexical/markdown';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
-import { InitialConfigType, LexicalComposer } from '@lexical/react/LexicalComposer';
+import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
@@ -15,15 +15,14 @@ import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import clsx from 'clsx';
 import { useFormik } from 'formik';
-import { $getRoot, $getSelection, EditorState } from 'lexical';
 import * as Yup from 'yup';
 import { fetchNewLetter } from '~/common/lib/utils/prisma';
 import AutoLinkPlugin from '~lib/utils/lexia-configs/auto-link-plugin';
 import CodeHighlightPlugin from '~lib/utils/lexia-configs/code-highlight-plugin';
 import { lexicalConfig } from '~lib/utils/lexia-configs/lexia-config';
 import ListMaxIndentLevelPlugin from '~lib/utils/lexia-configs/list-max-indent-level-plugin';
-import Theme from '~lib/utils/lexia-configs/theme';
 import ToolbarPlugin from '~lib/utils/lexia-configs/toolbar-plugin';
+import { useCreateEmailMutation } from '~store/compass-way/email-handler';
 
 // import TreeViewPlugin from './plugins/TreeViewPlugin';
 import StatusMsg from '../status-msg/status-msg';
@@ -31,11 +30,17 @@ import StatusMsg from '../status-msg/status-msg';
 type TProps = {
 	userEmail: string;
 	userId: string;
+	userSender: number;
 };
 
-const EmailForm: NextPage<TProps> = ({ userEmail, userId }) => {
+const EmailForm: NextPage<TProps> = ({ userEmail, userId, userSender }) => {
 	const [successMsg, setSuccessMsg] = useState<string>('');
 	const [errorMsg, setErrorMsg] = useState<string>('');
+
+	const [uploadTrigger, { isLoading, status, error, isSuccess }] = useCreateEmailMutation();
+	console.log('status', status);
+	console.log(error);
+	console.log('isSuccess', isSuccess);
 
 	//  Lexical Settings
 
@@ -47,37 +52,11 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId }) => {
 		);
 	}
 
-	// const editorConfig: InitialConfigType = {
-	// 	// The editor theme
-	// 	theme: Theme,
-	// 	namespace: 'en',
-	// 	// Handling of errors during update
-	// 	onError(error: Error) {
-	// 		throw error;
-	// 	},
-	// 	// Any custom nodes go here
-	// 	nodes: [
-	// 		HeadingNode,
-	// 		ListNode,
-	// 		ListItemNode,
-	// 		QuoteNode,
-	// 		CodeNode,
-	// 		CodeHighlightNode,
-	// 		TableNode,
-	// 		TableCellNode,
-	// 		TableRowNode,
-	// 		AutoLinkNode,
-	// 		LinkNode
-	// 	]
-	// 	// editorState: editorStateJSONString
-	// };
-
 	// function onChange(editorState: EditorState) {
 	// 	editorState.read(() => {
 	// 		// Read the contents of the EditorState here.
 	// 		const root = $getRoot();
 	// 		const selection = $getSelection();
-
 	// 		console.log(root, selection);
 	// 	});
 	// }
@@ -86,44 +65,48 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId }) => {
 
 	const formikSendEmail = useFormik({
 		initialValues: {
-			sendersEmail: userEmail,
-			recipientsEmail: '',
-			letterSubject: '',
-			letterBody: ''
+			sender: userEmail,
+			recipient: '',
+			subject: '',
+			message: ''
 		},
 		validationSchema: Yup.object({
-			sendersEmail: Yup.string()
+			sender: Yup.string()
 				.typeError('Incorrect data type!')
 				.email('Please, use a valid email address')
 				.required('This field is required!'),
-			recipientsEmail: Yup.string()
+			recipient: Yup.string()
 				.typeError('Incorrect data type!')
 				.email('Please, use a valid email address')
-				.required('This field is required!'),
-			letterSubject: Yup.string()
+				.required('This field is required!')
+				.max(254, 'Please, use less than 254 characters!'),
+			subject: Yup.string()
 				.typeError('Incorrect data type!')
 				.required('This field is required!')
 				.min(3, 'Please, use at least 3 characters!')
-				.max(50, 'Please, use less than 50 characters!'),
-			letterBody: Yup.string().typeError('Incorrect data type!').required('This field is required!')
+				.max(255, 'Please, use less than 255 characters!'),
+			message: Yup.string()
+				.typeError('Incorrect data type!')
+				.required('This field is required!')
+				.max(5000, 'Please, use less than 5000 characters!')
 		}),
 		onSubmit: async (values, { setSubmitting, resetForm }) => {
 			setErrorMsg(() => '');
 			setSuccessMsg(() => '');
+
 			try {
-				const result = await fetchNewLetter({
-					id: userId,
-					sendersEmail: values.sendersEmail,
-					recipientsEmail: values.recipientsEmail,
-					subject: values.letterSubject,
-					letterBody: values.letterBody
+				uploadTrigger({
+					// id: userId,
+					sender: 1,
+					// sender: values.sender,
+					recipient: values.recipient,
+					subject: values.subject,
+					message: values.message
 				});
-				setSuccessMsg(() => 'You have successfully registered, now you can login with your credentials!');
+				setSuccessMsg(() => 'You have successfully sent a message!');
 			} catch (err: any) {
-				setErrorMsg(() => err.message as string);
+				setErrorMsg(() => err.message);
 			}
-			console.log(successMsg);
-			console.log(errorMsg);
 			setSubmitting(false);
 		}
 	});
@@ -142,7 +125,6 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId }) => {
 		return Component;
 	};
 
-	console.log(formikSendEmail.values.letterBody);
 	return (
 		<section className='text-black w-full'>
 			<div className=''>
@@ -155,30 +137,30 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId }) => {
 					<div className='w-full'>
 						<div className='group relative'>
 							<input
-								id='sendersEmail'
+								id='sender'
 								type='email'
 								autoComplete='on'
 								placeholder=' '
-								{...formikSendEmail.getFieldProps('sendersEmail')}
+								{...formikSendEmail.getFieldProps('sender')}
 								className={clsx(
 									'peer w-full rounded-[4px] border-[1px] py-4 px-4 text-xs font-medium dark:bg-[#393547] dark:caret-white caret-black',
 									{
 										'outline-red-500 border-red-500 text-red-500 dark:text-red-500':
-											formikSendEmail.touched.sendersEmail && formikSendEmail.errors.sendersEmail,
+											formikSendEmail.touched.sender && formikSendEmail.errors.sender,
 										'border-neutral-400 outline-neutral-400 text-black dark:text-white':
-											!formikSendEmail.touched.sendersEmail || !formikSendEmail.errors.sendersEmail
+											!formikSendEmail.touched.sender || !formikSendEmail.errors.sender
 									}
 								)}
 							/>
 							<label
-								htmlFor='sendersEmail'
+								htmlFor='sender'
 								className={clsx(
 									'absolute left-3 top-0 -translate-y-1/2 bg-white dark:bg-[#393547] dark:peer-focus:bg-[#393547] px-2 text-xs font-medium transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:bg-transparent peer-focus:top-0 peer-focus:bg-white',
 									{
 										'text-red-500 dark:text-red-500':
-											formikSendEmail.touched.sendersEmail && formikSendEmail.errors.sendersEmail,
+											formikSendEmail.touched.sender && formikSendEmail.errors.sender,
 										'text-black dark:text-white':
-											!formikSendEmail.touched.sendersEmail || !formikSendEmail.errors.sendersEmail
+											!formikSendEmail.touched.sender || !formikSendEmail.errors.sender
 									}
 								)}
 							>
@@ -186,38 +168,38 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId }) => {
 							</label>
 						</div>
 						<ErrorMsgSend
-							touch={formikSendEmail.touched.sendersEmail}
-							error={formikSendEmail.errors.sendersEmail}
-							field='sendersEmail'
+							touch={formikSendEmail.touched.sender}
+							error={formikSendEmail.errors.sender}
+							field='sender'
 						/>
 					</div>
 					<div className='w-full'>
 						<div className='group relative'>
 							<input
-								id='recipientsEmail'
+								id='recipient'
 								type='email'
 								autoComplete='on'
 								placeholder=' '
-								{...formikSendEmail.getFieldProps('recipientsEmail')}
+								{...formikSendEmail.getFieldProps('recipient')}
 								className={clsx(
 									'peer w-full rounded-[4px] border-[1px] py-4 px-4 text-xs font-medium dark:bg-[#393547] dark:caret-white caret-black',
 									{
 										'outline-red-500 border-red-500 text-red-500 dark:text-red-500':
-											formikSendEmail.touched.recipientsEmail && formikSendEmail.errors.recipientsEmail,
+											formikSendEmail.touched.recipient && formikSendEmail.errors.recipient,
 										'border-neutral-400 outline-neutral-400 text-black dark:text-white':
-											!formikSendEmail.touched.recipientsEmail || !formikSendEmail.errors.recipientsEmail
+											!formikSendEmail.touched.recipient || !formikSendEmail.errors.recipient
 									}
 								)}
 							/>
 							<label
-								htmlFor='recipientsEmail'
+								htmlFor='recipient'
 								className={clsx(
 									'absolute left-3 top-0 -translate-y-1/2 bg-white dark:bg-[#393547] dark:peer-focus:bg-[#393547] px-2 text-xs font-medium transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:bg-transparent peer-focus:top-0 peer-focus:bg-white',
 									{
 										'text-red-500 dark:text-red-500':
-											formikSendEmail.touched.recipientsEmail && formikSendEmail.errors.recipientsEmail,
+											formikSendEmail.touched.recipient && formikSendEmail.errors.recipient,
 										'text-black dark:text-white':
-											!formikSendEmail.touched.recipientsEmail || !formikSendEmail.errors.recipientsEmail
+											!formikSendEmail.touched.recipient || !formikSendEmail.errors.recipient
 									}
 								)}
 							>
@@ -225,38 +207,38 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId }) => {
 							</label>
 						</div>
 						<ErrorMsgSend
-							touch={formikSendEmail.touched.recipientsEmail}
-							error={formikSendEmail.errors.recipientsEmail}
-							field='recipientsEmail'
+							touch={formikSendEmail.touched.recipient}
+							error={formikSendEmail.errors.recipient}
+							field='recipient'
 						/>
 					</div>
 					<div className='w-full'>
 						<div className='group relative'>
 							<input
-								id='letterSubject'
+								id='subject'
 								type='email'
 								autoComplete='on'
 								placeholder=' '
-								{...formikSendEmail.getFieldProps('letterSubject')}
+								{...formikSendEmail.getFieldProps('subject')}
 								className={clsx(
 									'peer w-full rounded-[4px] border-[1px] py-4 px-4 text-xs font-medium dark:bg-[#393547] dark:caret-white caret-black',
 									{
 										'outline-red-500 border-red-500 text-red-500 dark:text-red-500':
-											formikSendEmail.touched.letterSubject && formikSendEmail.errors.letterSubject,
+											formikSendEmail.touched.subject && formikSendEmail.errors.subject,
 										'border-neutral-400 outline-neutral-400 text-black dark:text-white':
-											!formikSendEmail.touched.letterSubject || !formikSendEmail.errors.letterSubject
+											!formikSendEmail.touched.subject || !formikSendEmail.errors.subject
 									}
 								)}
 							/>
 							<label
-								htmlFor='letterSubject'
+								htmlFor='subject'
 								className={clsx(
 									'absolute left-3 top-0 -translate-y-1/2 bg-white dark:bg-[#393547] dark:peer-focus:bg-[#393547] px-2 text-xs font-medium transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:bg-transparent peer-focus:top-0 peer-focus:bg-white',
 									{
 										'text-red-500 dark:text-red-500':
-											formikSendEmail.touched.letterSubject && formikSendEmail.errors.letterSubject,
+											formikSendEmail.touched.subject && formikSendEmail.errors.subject,
 										'text-black dark:text-white':
-											!formikSendEmail.touched.letterSubject || !formikSendEmail.errors.letterSubject
+											!formikSendEmail.touched.subject || !formikSendEmail.errors.subject
 									}
 								)}
 							>
@@ -264,9 +246,9 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId }) => {
 							</label>
 						</div>
 						<ErrorMsgSend
-							touch={formikSendEmail.touched.letterSubject}
-							error={formikSendEmail.errors.letterSubject}
-							field='letterSubject'
+							touch={formikSendEmail.touched.subject}
+							error={formikSendEmail.errors.subject}
+							field='subject'
 						/>
 					</div>
 
@@ -279,14 +261,14 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId }) => {
 									contentEditable={
 										<ContentEditable
 											role='textbox'
-											{...formikSendEmail.getFieldProps('letterBody')}
+											{...formikSendEmail.getFieldProps('message')}
 											className={clsx(
 												'min-h-[150px] resize-none text-[15px] relative caret-[#444] px-2 py-2 w-full border-[1px]',
 												{
 													'outline-red-500 border-red-500':
-														formikSendEmail.touched.letterBody && formikSendEmail.errors.letterBody,
+														formikSendEmail.touched.message && formikSendEmail.errors.message,
 													'border-neutral-400 outline-neutral-400  ':
-														!formikSendEmail.touched.letterBody || !formikSendEmail.errors.letterBody
+														!formikSendEmail.touched.message || !formikSendEmail.errors.message
 												}
 											)}
 										/>
@@ -305,30 +287,29 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId }) => {
 								<MarkdownShortcutPlugin transformers={TRANSFORMERS} />
 								<OnChangePlugin
 									onChange={(editorState) => {
-										console.log('coly', JSON.stringify(editorState));
-										formikSendEmail.setFieldValue('letterBody', JSON.stringify(editorState));
+										formikSendEmail.setFieldValue('message', JSON.stringify(editorState));
 									}}
 								/>
 							</div>
 						</div>
 					</LexicalComposer>
 					<ErrorMsgSend
-						touch={formikSendEmail.touched.letterBody}
-						error={formikSendEmail.errors.letterBody}
-						field='letterBody'
+						touch={formikSendEmail.touched.message}
+						error={formikSendEmail.errors.message}
+						field='message'
 					/>
 					{/* Custom Error Message */}
 					<StatusMsg errorMsg={errorMsg} successMsg={successMsg} status={formikSendEmail.isSubmitting} />
 
 					<button
-						disabled={formikSendEmail.isSubmitting ? true : false}
+						disabled={formikSendEmail.isSubmitting || isLoading ? true : false}
 						className={clsx(
 							'block relative mx-auto font-medium mt-6 cursor-pointer overflow-hidden rounded-md px-4 py-2 text-center text-white w-full col-span-2',
 							{
 								'bg-gray-500 hover:bg-gray-400 focus:outline-none focus:ring focus:ring-gray-300 focus:ring-opacity-40':
-									formikSendEmail.isSubmitting,
+									formikSendEmail.isSubmitting || isLoading,
 								'bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40':
-									!formikSendEmail.isSubmitting
+									!formikSendEmail.isSubmitting && !isLoading
 							}
 						)}
 						type='submit'

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 import { createEnv } from '@t3-oss/env-nextjs';
 
 export const env = createEnv({
@@ -21,7 +22,8 @@ export const env = createEnv({
 		GOOGLE_CLIENT_ID: z.string().min(5),
 		GOOGLE_CLIENT_SECRET: z.string().min(5),
 		COMPASSWAY_SWAGGER: z.string().url(),
-		COMPASSWAY_API: z.string().url()
+		COMPASSWAY_API: z.string().url(),
+		COMPASSWAY_AUTH: z.string()
 	},
 
 	/**
@@ -45,6 +47,7 @@ export const env = createEnv({
 		GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
 		GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
 		COMPASSWAY_SWAGGER: process.env.COMPASSWAY_API,
-		COMPASSWAY_API: process.env.COMPASSWAY_API
+		COMPASSWAY_API: process.env.COMPASSWAY_API,
+		COMPASSWAY_AUTH: process.env.COMPASSWAY_AUTH
 	}
 });

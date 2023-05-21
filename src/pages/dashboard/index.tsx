@@ -11,7 +11,7 @@ type TDashboard = {
 };
 
 const dashboard: NextPage<TDashboard> = ({ user }) => {
-	return <EmailForm userId={user.id} userEmail={user.email!} />;
+	return <EmailForm userId={user.id} userEmail={user.email!} userSender={user.sender} />;
 };
 
 export default dashboard;

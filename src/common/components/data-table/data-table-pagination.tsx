@@ -66,9 +66,9 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
 		<div className='flex flex-col w-full'>
 			<div className='flex items-center py-4 w-full gap-4'>
 				<Input
-					placeholder='Filter recepient emails...'
-					value={(table.getColumn('recipientsEmail')?.getFilterValue() as string) ?? ''}
-					onChange={(event) => table.getColumn('recipientsEmail')?.setFilterValue(event.target.value)}
+					placeholder='Filter recipient emails...'
+					value={(table.getColumn('recipient')?.getFilterValue() as string) ?? ''}
+					onChange={(event) => table.getColumn('recipient')?.setFilterValue(event.target.value)}
 					className='peer w-full rounded-[4px] border-[1px] py-4 px-4 text-xs font-medium dark:bg-[#393547] dark:caret-white caret-black border-neutral-400 outline-neutral-400 text-black dark:text-white focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline'
 				/>
 				<DropdownMenu>

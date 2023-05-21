@@ -22,6 +22,7 @@ declare module 'next-auth' {
 		user: {
 			id: string;
 			login: string;
+			sender: number;
 			// ...other properties
 			// role: UserRole;
 		} & DefaultSession['user'];
@@ -37,6 +38,7 @@ declare module 'next-auth/jwt/types' {
 	interface JWT extends DefaultJWT {
 		uid?: string;
 		login?: string;
+		sender?: number;
 	}
 }
 // declare module 'next-auth' {
@@ -71,6 +73,7 @@ export const authOptions: NextAuthOptions = {
 			if (session?.user) {
 				session.user.id = token.uid!; // token.sub
 				session.user.login = token.login!;
+				session.user.sender = token.sender!;
 			}
 			return session;
 		},
@@ -78,6 +81,7 @@ export const authOptions: NextAuthOptions = {
 			if (user) {
 				token.uid = user.id;
 				token.login = user.login!;
+				token.sender = user.sender!;
 			}
 			return token;
 		},

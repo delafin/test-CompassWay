@@ -27,15 +27,15 @@ import {
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
-export type Payment = {
+export type Info = {
 	id: string;
-	letterBody: string;
-	sendersEmail: string;
-	recipientsEmail: string;
-	letterSubject: string;
+	sender: string;
+	message: string;
+	recipient: string;
+	subject: string;
 };
 
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<Info>[] = [
 	{
 		id: 'select',
 		header: ({ table }) => (
@@ -56,7 +56,7 @@ export const columns: ColumnDef<Payment>[] = [
 		enableHiding: false
 	},
 	{
-		accessorKey: 'sendersEmail',
+		accessorKey: 'sender',
 		header: ({ column }) => {
 			return (
 				<Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
@@ -67,10 +67,10 @@ export const columns: ColumnDef<Payment>[] = [
 		}
 	},
 	{
-		accessorKey: 'recipientsEmail',
+		accessorKey: 'recipient',
 		header: ({ column }) => (
 			<Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-				Recepient Email
+				recipient Email
 				<ArrowUpDown className='ml-2 h-4 w-4' />
 			</Button>
 		)
@@ -87,17 +87,17 @@ export const columns: ColumnDef<Payment>[] = [
 		// }
 	},
 	{
-		accessorKey: 'letterSubject',
+		accessorKey: 'subject',
 		header: () => <Button variant='ghost'>Letter Subject</Button>
 	},
 	{
-		accessorKey: 'letterBody',
+		accessorKey: 'message',
 		header: () => <Button variant='ghost'>Letter Body</Button>,
 		cell: ({ row }) => {
-			// console.log(JSON.parse(row.getValue('letterBody')));
+			// console.log(JSON.parse(row.getValue('message')));
 			return (
 				<div className='overflow-hidden max-h-64 overflow-y-scroll'>
-					<LexicalComposer initialConfig={lexicalConfig(row.getValue('letterBody'))}>
+					<LexicalComposer initialConfig={lexicalConfig(row.getValue('message'))}>
 						<ContentEditable className='min-h-[150px] resize-none text-[15px] relative caret-[#444] px-2 py-2 w-full border-[1px] border-neutral-400 outline-neutral-400' />
 						<AutoFocusPlugin />
 						<CodeHighlightPlugin />
@@ -115,7 +115,7 @@ export const columns: ColumnDef<Payment>[] = [
 	{
 		id: 'actions',
 		cell: ({ row }) => {
-			const payment = row.original;
+			const info = row.original;
 
 			return (
 				<DropdownMenu>
@@ -129,31 +129,31 @@ export const columns: ColumnDef<Payment>[] = [
 						<DropdownMenuLabel>Actions</DropdownMenuLabel>
 						<DropdownMenuItem
 							className='cursor-pointer hover:bg-gray-400/50'
-							onClick={() => navigator.clipboard.writeText(payment.id)}
+							onClick={() => navigator.clipboard.writeText(info.id)}
 						>
 							Copy user ID
 						</DropdownMenuItem>
 						<DropdownMenuItem
 							className='cursor-pointer hover:bg-gray-400/50'
-							onClick={() => navigator.clipboard.writeText(payment.sendersEmail)}
+							onClick={() => navigator.clipboard.writeText(info.sender)}
 						>
 							Copy Sender's Email
 						</DropdownMenuItem>
 						<DropdownMenuItem
 							className='cursor-pointer hover:bg-gray-400/50'
-							onClick={() => navigator.clipboard.writeText(payment.recipientsEmail)}
+							onClick={() => navigator.clipboard.writeText(info.recipient)}
 						>
 							Copy Recipients Email
 						</DropdownMenuItem>
 						<DropdownMenuItem
 							className='cursor-pointer hover:bg-gray-400/50'
-							onClick={() => navigator.clipboard.writeText(payment.letterSubject)}
+							onClick={() => navigator.clipboard.writeText(info.subject)}
 						>
 							Copy Letter Subject
 						</DropdownMenuItem>
 						<DropdownMenuItem
 							className='cursor-pointer hover:bg-gray-400/50'
-							onClick={() => navigator.clipboard.writeText(payment.letterBody)}
+							onClick={() => navigator.clipboard.writeText(info.message)}
 						>
 							Copy Letter Body
 						</DropdownMenuItem>

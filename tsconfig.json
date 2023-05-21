@@ -21,6 +21,7 @@
 			"~lib/*": ["./src/common/lib/*"],
 			"~server/*": ["./src/server/*"],
 			"~ui/*": ["./src/common/components/*"],
+			"~store/*": ["./src/store/*"],
 			"~/*": ["./src/*"]
 		}
 	},

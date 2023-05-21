@@ -1,6 +1,6 @@
 import { type User } from '@prisma/client';
 
-export async function fetchNewUser(data: PartialSelect<User, 'id' | 'image' | 'emailVerified'>) {
+export async function fetchNewUser(data: PartialSelect<User, 'id' | 'image' | 'emailVerified' | 'sender'>) {
 	const response = await fetch('/api/auth/create-user', {
 		method: 'POST',
 		body: JSON.stringify(data),
@@ -22,10 +22,10 @@ export async function fetchNewUser(data: PartialSelect<User, 'id' | 'image' | 'e
 
 export async function fetchNewLetter(data: {
 	id: string;
-	sendersEmail: string;
-	recipientsEmail: string;
+	sender: string;
+	recipient: string;
 	subject: string;
-	letterBody: string;
+	message: string;
 }) {
 	const response = await fetch('/api/auth/create-user', {
 		method: 'POST',

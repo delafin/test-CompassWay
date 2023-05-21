@@ -2,7 +2,10 @@ import { type Session } from 'next-auth';
 import { SessionProvider } from 'next-auth/react';
 import { type AppType } from 'next/app';
 
+import { ApiProvider } from '@reduxjs/toolkit/dist/query/react';
 import Layout from '~/common/layout/layout';
+import { compassWayApi } from '~store/compass-way/email-handler';
+import { wrapper } from '~store/store';
 
 import '~/styles/globals.css';
 
@@ -13,12 +16,19 @@ const MyApp: AppType<{ session: Session | null }> = ({
 }) => {
 	const getContent = () => {
 		// Array of all the paths that doesn't need layout
-		if ([`/`].includes(appProps.router.pathname)) return <Component {...pageProps} />;
+		if ([`/`].includes(appProps.router.pathname))
+			return (
+				<ApiProvider api={compassWayApi}>
+					<Component {...pageProps} />
+				</ApiProvider>
+			);
 
 		return (
-			<Layout>
-				<Component {...pageProps} />
-			</Layout>
+			<ApiProvider api={compassWayApi}>
+				<Layout>
+					<Component {...pageProps} />
+				</Layout>
+			</ApiProvider>
 		);
 	};
 
@@ -43,4 +53,5 @@ const MyApp: AppType<{ session: Session | null }> = ({
 	// 	);
 };
 
-export default MyApp;
+// export default MyApp;
+export default wrapper.withRedux(MyApp);

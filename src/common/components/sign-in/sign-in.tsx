@@ -23,21 +23,7 @@ const Modal: NextPage<TModal> = ({ isUser = true }) => {
 	return (
 		<div className='fixed top-0 left-0 right-0 bottom-0 z-[100] flex items-center justify-center bg-black/50'>
 			<div className='relative w-full max-w-[80%] overflow-hidden bg-transparent  md:max-w-sm'>
-				<div
-					className='relative left-0 flex h-auto w-full items-start justify-start transition-all'
-					// style={
-					// 	{
-					// 		// maxHeight: isSignUp ? `${signUpModalRef?.current?.scrollHeight}px` : 'unset',
-					// 		// maxHeight: isSignUp
-					// 		// 	? `${signUpModalRef?.current?.scrollHeight}px`
-					// 		// 	: `${signInModalRef?.current?.scrollHeight}px`,
-					// 		// left: isSignUp ? `-100%` : `unset`
-					// 	}
-					// }
-					// {`${passwordShow ? 'Hide' : 'Show'}`}
-					// style={styleModalAdaptiveHeight}
-					// dark:bg-[#34313F] dark:bg-[#221F2C]
-				>
+				<div className='relative left-0 flex h-auto w-full items-start justify-start transition-all'>
 					<div
 						className='min-w-full overflow-hidden'
 						style={{
@@ -75,11 +61,15 @@ const FormSignIn: NextPage<FormProps> = ({ isSignUp, setIsSignUp }) => {
 			LoginEmail: ''
 		},
 		validationSchema: Yup.object({
-			LoginPassword: Yup.string().typeError('Please, use only numbers!').required('This field is required!'),
+			LoginPassword: Yup.string()
+				.typeError('Please, use only numbers!')
+				.required('This field is required!')
+				.max(128, 'Please, use less than 128 characters!'),
 			LoginEmail: Yup.string()
 				.typeError('Incorrect data type!')
 				.email('Please, use a valid email address')
 				.required('This field is required!')
+				.max(254, 'Please, use less than 254 characters!')
 		}),
 		onSubmit: async (values, { setSubmitting, resetForm }) => {
 			setErrorMsg(() => '');
@@ -294,23 +284,30 @@ export const FormSignUp: NextPage<FormProps> = ({ isSignUp, setIsSignUp }) => {
 				.required('This field is required!')
 				.matches(/^([^0-9]*)$/, 'Please, use only letters!')
 				.min(3, 'Please, use at least 3 characters!')
-				.max(50, 'Please, use less than 50 characters!'),
+				.max(150, 'Please, use less than 150 characters!'),
 			userLogin: Yup.string()
 				.typeError('Incorrect data type!')
 				.min(3, 'Please, use at least 3 characters!')
 				.required('This field is required!')
+				.max(150, 'Please, use less than 150 characters!')
 				.test(
 					'userLogin',
 					'Please, use underscores or dashes instead of spaces!',
 					(userLogin) => !userLogin.includes(' ')
+				)
+				.matches(
+					/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[\w.@+-])(?=.{3,})$/,
+					'Please, use more than 3 Characters, Letters, digits and `@/./+/-/_` only!'
 				),
 			userEmail: Yup.string()
 				.typeError('Incorrect data type!')
 				.email('Please, use a valid email address')
-				.required('This field is required!'),
+				.required('This field is required!')
+				.max(254, 'Please, use less than 254 characters!'),
 			userPassword: Yup.string()
 				.typeError('Please, use only numbers!')
 				.required('This field is required!')
+				.max(128, 'Please, use less than 128 characters!')
 				.matches(
 					/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%\^&\*])(?=.{8,})/,
 					'Please, use more than 8 Characters, One Uppercase, One Lowercase, One Number and One Special Case Character!'
@@ -320,7 +317,6 @@ export const FormSignUp: NextPage<FormProps> = ({ isSignUp, setIsSignUp }) => {
 				.when('userPassword', {
 					is: (val: string) => (val && val.length > 0 ? true : false),
 					then: () => Yup.string().oneOf([Yup.ref('userPassword')], 'Both passwords must be the same!')
-					// then: Yup.string().oneOf([Yup.ref('userPassword')], 'Both passwords must be the same!')
 				}),
 			userAgree: Yup.boolean()
 				.typeError('Incorrect data type!')
@@ -532,12 +528,6 @@ export const FormSignUp: NextPage<FormProps> = ({ isSignUp, setIsSignUp }) => {
 								{passwordShow ? <Icons.Eye /> : <Icons.EyeOff />}
 							</div>
 						</div>
-						{/* <div
-							className='mt-2 cursor-pointer text-black dark:text-white'
-							onClick={() => setPasswordShow((show) => !show)}
-						>
-							{`${passwordShow ? 'Hide' : 'Show'}`} password
-						</div> */}
 						<ErrorMsgSignUp
 							touch={formikSignUp.touched.userPassword}
 							error={formikSignUp.errors.userPassword}
