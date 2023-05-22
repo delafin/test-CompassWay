@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { NextPage } from 'next';
+import Error from 'next/error';
 
 import { TRANSFORMERS } from '@lexical/markdown';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
@@ -37,10 +38,7 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId, userSender }) => {
 	const [successMsg, setSuccessMsg] = useState<string>('');
 	const [errorMsg, setErrorMsg] = useState<string>('');
 
-	const [uploadTrigger, { isLoading, status, error, isSuccess }] = useCreateEmailMutation();
-	console.log('status', status);
-	console.log(error);
-	console.log('isSuccess', isSuccess);
+	const [uploadTrigger, { isLoading, status, error, isSuccess, isError }] = useCreateEmailMutation();
 
 	//  Lexical Settings
 
@@ -93,21 +91,45 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId, userSender }) => {
 		onSubmit: async (values, { setSubmitting, resetForm }) => {
 			setErrorMsg(() => '');
 			setSuccessMsg(() => '');
-
-			try {
-				uploadTrigger({
-					// id: userId,
-					sender: 1,
-					// sender: values.sender,
-					recipient: values.recipient,
-					subject: values.subject,
-					message: values.message
-				});
-				setSuccessMsg(() => 'You have successfully sent a message!');
-			} catch (err: any) {
-				setErrorMsg(() => err.message);
+			const data = await uploadTrigger({
+				sender: 1,
+				recipient: values.recipient,
+				subject: values.subject,
+				message: values.message
+			});
+			switch (status) {
+				case 'fulfilled':
+					setSuccessMsg(() => 'You have successfully sent a message!');
+					break;
+				case 'rejected':
+					setErrorMsg(() =>
+						typeof (data as TFetchedError).error.data === 'string'
+							? (data as TFetchedError).error.data
+							: (data as TFetchedError).error.data.detail
+					);
+					break;
+				default:
+					console.log(data);
+					setErrorMsg(() => 'Something went wrong!');
+					break;
 			}
+
 			setSubmitting(false);
+			// try {
+			// 	const data = uploadTrigger({
+			// 		// id: userId,
+			// 		sender: 1,
+			// 		// sender: values.sender,
+			// 		recipient: values.recipient,
+			// 		subject: values.subject,
+			// 		message: values.message
+			// 	});
+
+			// 	setSuccessMsg(() => 'You have successfully sent a message!');
+			// } catch (err: any) {
+			// 	setErrorMsg(() => err.message);
+			// }
+			// setSubmitting(false);
 		}
 	});
 

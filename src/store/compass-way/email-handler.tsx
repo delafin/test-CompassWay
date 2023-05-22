@@ -1,4 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import axios from 'axios';
+import { axiosBaseQuery } from '~lib/utils/base-query';
 
 import { env } from '~/env.mjs';
 
@@ -9,23 +11,25 @@ type TFetchedData = {
 	subject: string;
 	message: string;
 };
-type TSearchParams = { search?: string; ordering?: string; limit?: string; offset?: string };
 
-// declare module '@reduxjs/toolkit/query/react' {
-// 	interface FetchBaseQueryError {
-// 		error: string
-// 	}
-// }
+type TSearchParams = { search?: string; ordering?: string; limit?: string; offset?: string };
 
 export const compassWayApi = createApi({
 	reducerPath: 'api',
-	baseQuery: fetchBaseQuery({
+	baseQuery: axiosBaseQuery({
 		baseUrl: 'http://68.183.74.14:4005/api/',
-		prepareHeaders: (headers) => {
-			headers.set('Authorization', 'Basic aWZpbmhpbWU6QVp2WUU0SEo=');
-			headers.set('Accept', 'application/json'), headers.set('Content-Type', 'application/json');
+		baseAuth: {
+			username: 'ifinhime',
+			password: 'AZvYE4HJ'
 		}
 	}),
+	// baseQuery: fetchBaseQuery({
+	// 	baseUrl: 'http://68.183.74.14:4005/api/',
+	// 	prepareHeaders: (headers) => {
+	// 		headers.set('Authorization', 'Basic aWZpbmhpbWU6QVp2WUU0SEo=');
+	// 		headers.set('Accept', 'application/json'), headers.set('Content-Type', 'application/json');
+	// 	}
+	// }),
 	tagTypes: ['emailInfo'],
 	endpoints: (builder) => ({
 		getAllEmails: builder.query<TFetchedData[], TSearchParams>({
@@ -42,25 +46,20 @@ export const compassWayApi = createApi({
 			providesTags: ['emailInfo']
 		}),
 		getSenderEmail: builder.query<TFetchedData[], number>({
-			query: (senderId: number) => `emails/${senderId}/`,
+			query: (senderId: number) => ({
+				url: `emails/${senderId}/`,
+				method: 'GET'
+			}),
 			providesTags: ['emailInfo']
 		}),
-		createEmail: builder.mutation<TFetchedData[], TFetchedData>({
+		createEmail: builder.mutation<TFetchedData[] | TFetchedError, TFetchedData>({
 			query: (variableArg: TFetchedData) => ({
 				url: 'emails/',
 				method: 'POST',
-				body: variableArg
+				data: variableArg
 			}),
 			invalidatesTags: ['emailInfo']
 		})
-		// syncUsers: builder.mutation<TFetchedData[], TFetchedData>({
-		// 	query: (variableArg: TFetchedData) => ({
-		// 		url: '',
-		// 		method: 'POST',
-		// 		body: variableArg
-		// 	}),
-		// 	invalidatesTags: ['emailInfo']
-		// })
 	})
 });
 export const {

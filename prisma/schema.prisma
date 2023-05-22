@@ -16,10 +16,15 @@ datasource db {
 		relationMode = "prisma" // for Planetscale, MongoDB use relationMode = "prisma"
 }
 
-model Example {
+model Message {
     id        String   @id @default(cuid())
+		userId    String   
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+		message   String   @db.Text
+		user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+		@@index([userId])
 }
 
 // Necessary for Next auth
@@ -63,6 +68,7 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
+		message       Message[]
 }
 
 model VerificationToken {

@@ -19,15 +19,15 @@ type THistory = {
 	user: User;
 };
 const history: NextPage<THistory> = ({ user }) => {
-	// const { data: emails = [], isFetching, isLoading, isSuccess, isError, error } = useGetSenderEmailQuery(1);
-	const {
-		data: emails = [],
-		isFetching,
-		isLoading,
-		isSuccess,
-		isError,
-		error
-	} = useGetAllEmailsQuery({ search: '1' });
+	const { data: emails = [], isFetching, isLoading, isSuccess, isError, error } = useGetSenderEmailQuery(557);
+	// const {
+	// 	data: emails = [],
+	// 	isFetching,
+	// 	isLoading,
+	// 	isSuccess,
+	// 	isError,
+	// 	error
+	// } = useGetAllEmailsQuery({ search: '1' });
 
 	console.log(error);
 	console.log(emails);
