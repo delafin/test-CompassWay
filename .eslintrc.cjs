@@ -11,7 +11,10 @@ const config = {
 				project: path.join(__dirname, 'tsconfig.json')
 			},
 			rules: {
-				'@typescript-eslint/no-unsafe-argument': 'warn'
+				'@typescript-eslint/no-unsafe-argument': 'warn',
+				'@typescript-eslint/no-unsafe-assignment': 'warn',
+				'@typescript-eslint/no-unsafe-member-access': 'warn',
+				'@typescript-eslint/no-unnecessary-type-assertion': 'warn'
 			}
 		}
 	],
@@ -36,7 +39,10 @@ const config = {
 				allowSingleExtends: false
 			}
 		],
-		'@typescript-eslint/no-unsafe-argument': 'warn'
+		'@typescript-eslint/no-unsafe-argument': 'warn',
+		'@typescript-eslint/no-unsafe-assignment': 'warn',
+		'@typescript-eslint/no-unsafe-member-access': 'warn',
+		'@typescript-eslint/no-unnecessary-type-assertion': 'warn'
 	}
 };
 

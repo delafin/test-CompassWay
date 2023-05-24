@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { NextPage } from 'next';
 
 import { TRANSFORMERS } from '@lexical/markdown';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
+import { ClearEditorPlugin } from '@lexical/react/LexicalClearEditorPlugin';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
@@ -15,7 +17,9 @@ import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import clsx from 'clsx';
 import { useFormik } from 'formik';
+import { $createParagraphNode, $getRoot, $getSelection, CLEAR_EDITOR_COMMAND, LexicalEditor } from 'lexical';
 import * as Yup from 'yup';
+import EditorCapturePlugin from '~lib/utils/lexia-configs/EditorCapturePlugin';
 import AutoLinkPlugin from '~lib/utils/lexia-configs/auto-link-plugin';
 import CodeHighlightPlugin from '~lib/utils/lexia-configs/code-highlight-plugin';
 import { lexicalConfig } from '~lib/utils/lexia-configs/lexia-config';
@@ -38,6 +42,7 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId, userSender }) => {
 	const [successMsg, setSuccessMsg] = useState<string>('');
 	const [errorMsg, setErrorMsg] = useState<string>('');
 
+	const editorRef = useRef<LexicalEditor | null>(null);
 	const [sendEmail, { isError, isLoading, error }] = usePushNewMessageMutation();
 
 	//  Lexical Settings
@@ -97,7 +102,9 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId, userSender }) => {
 				subject: values.subject,
 				message: values.message
 			});
-
+			if (editorRef) {
+				editorRef.current?.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
+			}
 			if (isError) {
 				setErrorMsg(() =>
 					(error as { data: { message: string } }).data.message
@@ -273,6 +280,7 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId, userSender }) => {
 														!formikSendEmail.touched.message || !formikSendEmail.errors.message
 												}
 											)}
+											value={formikSendEmail.values.message}
 										/>
 									}
 									placeholder={<Placeholder />}
@@ -285,6 +293,8 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId, userSender }) => {
 								<ListPlugin />
 								<LinkPlugin />
 								<AutoLinkPlugin />
+								<ClearEditorPlugin />
+								<EditorCapturePlugin ref={editorRef} />
 								<ListMaxIndentLevelPlugin maxDepth={7} />
 								<MarkdownShortcutPlugin transformers={TRANSFORMERS} />
 								<OnChangePlugin
