@@ -48,7 +48,11 @@
 		@apply bg-gray-100 font-roboto text-base font-medium leading-6 text-black;
 	}
 
-	/* Dicslamer: It's just Copy - Paste for styling Rich Text Editor from Example */
+	/**
+	*
+	* Dicslamer: It's just Copy - Paste for styling Rich Text Editor from Example
+	*
+	*/
 
 	.other h2 {
 		@apply mb-[7px] text-lg text-[#444];

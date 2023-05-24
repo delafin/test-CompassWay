@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { Dispatch, SetStateAction } from 'react';
 
 import {
 	ColumnDef,
@@ -36,13 +36,27 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
 	data: TData[];
+	userId?: string;
+	skip: number | null;
+	take: number | null;
+	setSkip: Dispatch<SetStateAction<number | null>>;
+	setTake: Dispatch<SetStateAction<number | null>>;
 }
 
-export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({
+	columns,
+	data,
+	userId,
+	skip,
+	take,
+	setSkip,
+	setTake
+}: DataTableProps<TData, TValue>) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
 	const [rowSelection, setRowSelection] = React.useState({});
+
 	const table = useReactTable({
 		data,
 		columns,
@@ -61,6 +75,11 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
 			rowSelection
 		}
 	});
+
+	// const ClickNext = async () => {
+	// 	setTake(() => table.getState().pagination.pageSize * (table.getState().pagination.pageIndex + 1));
+	// 	setSkip(() => table.getState().pagination.pageIndex * table.getState().pagination.pageSize);
+	// };
 
 	return (
 		<div className='flex flex-col w-full'>
@@ -178,7 +197,9 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
 					<Button
 						variant='outline'
 						size='sm'
-						onClick={() => table.nextPage()}
+						onClick={() => {
+							table.nextPage();
+						}}
 						disabled={!table.getCanNextPage()}
 					>
 						Next

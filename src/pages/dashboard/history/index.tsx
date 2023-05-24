@@ -1,41 +1,37 @@
+import { useState } from 'react';
+
 import { GetServerSideProps, GetServerSidePropsContext, type NextPage } from 'next';
 import { User } from 'next-auth';
 import { getServerSession } from 'next-auth/next';
 
 import { authOptions } from '~/server/auth';
-import {
-	getRunningQueriesThunk,
-	getSenderEmail,
-	useGetAllEmailsQuery,
-	useGetSenderEmailQuery
-} from '~store/compass-way/email-handler';
+import { useGetAllMessagesQuery } from '~store/db/prisma-handler';
 import { AppStore, wrapper } from '~store/store';
 
 import { columns } from '~ui/data-table/columns';
-import { payments } from '~ui/data-table/data';
 import { DataTable } from '~ui/data-table/data-table-pagination';
 
 type THistory = {
 	user: User;
 };
-const history: NextPage<THistory> = ({ user }) => {
-	const { data: emails = [], isFetching, isLoading, isSuccess, isError, error } = useGetSenderEmailQuery(557);
-	// const {
-	// 	data: emails = [],
-	// 	isFetching,
-	// 	isLoading,
-	// 	isSuccess,
-	// 	isError,
-	// 	error
-	// } = useGetAllEmailsQuery({ search: '1' });
-
-	console.log(error);
-	console.log(emails);
-
-	return <DataTable columns={columns} data={payments} />;
+const History: NextPage<THistory> = ({ user }) => {
+	const [take, setTake] = useState<number | null>(null);
+	const [skip, setSkip] = useState<number | null>(0);
+	const { data = [] } = useGetAllMessagesQuery({ userId: user.id, skip: skip, take: take });
+	return (
+		<DataTable
+			columns={columns}
+			data={data}
+			userId={user.id}
+			skip={skip}
+			take={take}
+			setSkip={setSkip}
+			setTake={setTake}
+		/>
+	);
 };
 
-export default history;
+export default History;
 
 export const getServerSideProps: GetServerSideProps = wrapper.getServerSideProps(
 	(store: AppStore) => async (context: GetServerSidePropsContext) => {

@@ -19,16 +19,18 @@ const Layout: NextPage<TLayout> = ({ children }) => {
 								<div className='flex items-center justify-left gap-1 flex-wrap self-start lg:self-auto'>
 									<p className='text-black'>Name:</p>
 									<p className='text-black'>
-										{session?.user?.name?.length! > 20
+										{session?.user?.name?.length && session?.user?.name?.length > 20
 											? session?.user?.name?.slice(0, 20)
 											: session?.user?.name}
 									</p>
 								</div>
 								<div className='flex items-center justify-left gap-1 flex-wrap self-start lg:self-auto'>
 									<p className='text-black'>Email:</p>
-									<a href={`mailto:${session?.user?.email}`} className='text-black'>
-										{session?.user?.email}
-									</a>
+									{session?.user?.email && (
+										<a href={`mailto:${session?.user?.email}`} className='text-black'>
+											{session?.user?.email}
+										</a>
+									)}
 								</div>
 								<div className='flex items-center justify-left gap-1 flex-wrap self-start lg:self-auto'>
 									<p className='text-black'>Login:</p>
@@ -45,7 +47,7 @@ const Layout: NextPage<TLayout> = ({ children }) => {
 							</div>
 							<button
 								className='block relative w-full lg:w-auto font-medium cursor-pointer overflow-hidden rounded-md px-4 py-2 text-center text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 flex-shrink'
-								onClick={() => signOut()}
+								onClick={() => void signOut()}
 							>
 								Sign Out
 							</button>

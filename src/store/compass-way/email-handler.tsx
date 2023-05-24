@@ -1,8 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import axios from 'axios';
 import { axiosBaseQuery } from '~lib/utils/base-query';
-
-import { env } from '~/env.mjs';
 
 type TFetchedData = {
 	// id: string;
@@ -11,7 +8,10 @@ type TFetchedData = {
 	subject: string;
 	message: string;
 };
-
+export type TFetchedError = {
+	data: string | { detail: string };
+	status: string;
+};
 type TSearchParams = { search?: string; ordering?: string; limit?: string; offset?: string };
 
 export const compassWayApi = createApi({
@@ -21,6 +21,9 @@ export const compassWayApi = createApi({
 		baseAuth: {
 			username: 'ifinhime',
 			password: 'AZvYE4HJ'
+		},
+		baseHeaders: {
+			'Content-Type': 'application/json'
 		}
 	}),
 	// baseQuery: fetchBaseQuery({

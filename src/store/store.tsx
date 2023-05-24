@@ -1,29 +1,31 @@
 import { HYDRATE, createWrapper } from 'next-redux-wrapper';
 
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
-import { compassWayApi } from '~store/compass-way/email-handler';
+import { dbApi } from '~store/db/prisma-handler';
 
 const allReducers = combineReducers({
-	[compassWayApi.reducerPath]: compassWayApi.reducer
+	// Secod variant:
+	// [compassWayApi.reducerPath]: compassWayApi.reducer,
+	[dbApi.reducerPath]: dbApi.reducer
 });
 // SSR
-const mainReducer: typeof allReducers = (state, action) => {
-	if (action.type === HYDRATE) {
-		const nextState = {
-			...state,
-			...action.payload
-		};
-		return nextState;
-	} else {
-		return allReducers(state, action);
-	}
-};
+// const mainReducer: typeof allReducers = (state, action) => {
+// 	if (action.type === HYDRATE) {
+// 		const nextState = {
+// 			...state,
+// 			...action.payload
+// 		};
+// 		return nextState;
+// 	} else {
+// 		return allReducers(state, action);
+// 	}
+// };
 
 const store = () => {
 	return configureStore({
 		devTools: process.env.NODE_ENV !== 'production',
-		reducer: mainReducer,
-		middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(compassWayApi.middleware)
+		reducer: allReducers,
+		middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(dbApi.middleware)
 	});
 };
 export type AppStore = ReturnType<typeof store>;

@@ -111,7 +111,7 @@ function FloatingLinkEditor({ editor }: { editor: LexicalEditor }) {
 			selection !== null &&
 			!nativeSelection?.isCollapsed &&
 			rootElement !== null &&
-			rootElement.contains(nativeSelection?.anchorNode!)
+			rootElement.contains(nativeSelection?.anchorNode ? nativeSelection?.anchorNode : null)
 		) {
 			const domRange = nativeSelection?.getRangeAt(0);
 			let rect;

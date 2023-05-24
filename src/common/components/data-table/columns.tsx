@@ -8,10 +8,11 @@ import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
-import { ColumnDef } from '@tanstack/react-table';
+import type { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
 import { Button } from '~/common/components/shadcn-ui/button';
 import AutoLinkPlugin from '~/common/lib/utils/lexia-configs/auto-link-plugin';
+import type { Data } from '~/types/global';
 import CodeHighlightPlugin from '~lib/utils/lexia-configs/code-highlight-plugin';
 import { lexicalConfig } from '~lib/utils/lexia-configs/lexia-config';
 import ListMaxIndentLevelPlugin from '~lib/utils/lexia-configs/list-max-indent-level-plugin';
@@ -27,15 +28,8 @@ import {
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
-export type Info = {
-	id: string;
-	sender: string;
-	message: string;
-	recipient: string;
-	subject: string;
-};
 
-export const columns: ColumnDef<Info>[] = [
+export const columns: ColumnDef<Data>[] = [
 	{
 		id: 'select',
 		header: ({ table }) => (
@@ -56,7 +50,7 @@ export const columns: ColumnDef<Info>[] = [
 		enableHiding: false
 	},
 	{
-		accessorKey: 'sender',
+		accessorKey: 'senderEmail',
 		header: ({ column }) => {
 			return (
 				<Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
@@ -94,7 +88,6 @@ export const columns: ColumnDef<Info>[] = [
 		accessorKey: 'message',
 		header: () => <Button variant='ghost'>Letter Body</Button>,
 		cell: ({ row }) => {
-			// console.log(JSON.parse(row.getValue('message')));
 			return (
 				<div className='overflow-hidden max-h-64 overflow-y-scroll'>
 					<LexicalComposer initialConfig={lexicalConfig(row.getValue('message'))}>
@@ -129,31 +122,31 @@ export const columns: ColumnDef<Info>[] = [
 						<DropdownMenuLabel>Actions</DropdownMenuLabel>
 						<DropdownMenuItem
 							className='cursor-pointer hover:bg-gray-400/50'
-							onClick={() => navigator.clipboard.writeText(info.id)}
+							onClick={() => void navigator.clipboard.writeText(info.id)}
 						>
 							Copy user ID
 						</DropdownMenuItem>
 						<DropdownMenuItem
 							className='cursor-pointer hover:bg-gray-400/50'
-							onClick={() => navigator.clipboard.writeText(info.sender)}
+							onClick={() => void navigator.clipboard.writeText(info.senderEmail)}
 						>
-							Copy Sender's Email
+							Copy Sender&apos;s Email
 						</DropdownMenuItem>
 						<DropdownMenuItem
 							className='cursor-pointer hover:bg-gray-400/50'
-							onClick={() => navigator.clipboard.writeText(info.recipient)}
+							onClick={() => () => void navigator.clipboard.writeText(info.recipient)}
 						>
 							Copy Recipients Email
 						</DropdownMenuItem>
 						<DropdownMenuItem
 							className='cursor-pointer hover:bg-gray-400/50'
-							onClick={() => navigator.clipboard.writeText(info.subject)}
+							onClick={() => void navigator.clipboard.writeText(info.subject)}
 						>
 							Copy Letter Subject
 						</DropdownMenuItem>
 						<DropdownMenuItem
 							className='cursor-pointer hover:bg-gray-400/50'
-							onClick={() => navigator.clipboard.writeText(info.message)}
+							onClick={() => void navigator.clipboard.writeText(info.message)}
 						>
 							Copy Letter Body
 						</DropdownMenuItem>

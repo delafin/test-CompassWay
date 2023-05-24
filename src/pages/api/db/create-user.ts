@@ -4,7 +4,15 @@ import { userCreate, userValidationEmail } from '~server/db';
 
 import { genSalt, hash } from 'bcryptjs';
 
-const signUp = async (req: NextApiRequest, res: NextApiResponse) => {
+interface NextApiRequested extends NextApiRequest {
+	body: {
+		name: string;
+		email: string;
+		password: string;
+		login: string;
+	};
+}
+const signUp = async (req: NextApiRequested, res: NextApiResponse) => {
 	if (req.method !== 'POST') {
 		return res.status(405).json({ message: 'Method not allowed' });
 	}

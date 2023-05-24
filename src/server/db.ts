@@ -1,4 +1,5 @@
-import { PrismaClient, type User } from '@prisma/client';
+import { type Message, PrismaClient, type User } from '@prisma/client';
+import { PartialSelect } from '~/types/global';
 
 import { env } from '~/env.mjs';
 
@@ -15,11 +16,10 @@ export const prisma =
 if (env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 export async function userList() {
-	const userResponse = await prisma.user
-		.findMany()
-		.then((result) => JSON.stringify(result))
-		.catch((err) => JSON.stringify(err))
-		.finally(prisma.$disconnect);
+	const userResponse = await prisma.user.findMany();
+	// .then((result) => JSON.stringify(result))
+	// .catch((err) => JSON.stringify(err))
+	// .finally(prisma.$disconnect);
 	return userResponse;
 }
 export async function userValidationEmail(email: string) {
@@ -42,16 +42,66 @@ export async function userValidationCredentials(email: string, password: string)
 		}
 	});
 
-	return userResponse as User;
+	return userResponse;
 }
 
 export async function userCreate(data: PartialSelect<User, 'id' | 'image' | 'emailVerified' | 'sender'>) {
-	const userResponse = await prisma.user
-		.create({
-			data
-		})
-		// .then((result) => JSON.stringify(result))
-		// .catch((err) => JSON.stringify(err))
-		.finally(prisma.$disconnect);
+	const userResponse = await prisma.user.create({
+		data
+	});
 	return userResponse;
+}
+
+export async function userCreateMessage(data: PartialSelect<Message, 'id' | 'createdAt' | 'updatedAt'>) {
+	const userResponse = await prisma.message.create({
+		data
+	});
+	return userResponse;
+}
+
+export async function userGetAllMessages({
+	sender,
+	skip,
+	take
+}: {
+	sender: string;
+	skip?: number;
+	take?: number;
+}) {
+	if ((!skip && skip !== 0) || !take) {
+		const userResponse = await prisma.message.findMany({
+			orderBy: [
+				{
+					createdAt: 'desc'
+				}
+			],
+			where: {
+				sender
+			},
+			include: {
+				user: {
+					select: {
+						email: true
+					}
+				}
+			}
+		});
+		return userResponse;
+	} else {
+		const userResponse = await prisma.message.findMany({
+			skip,
+			take,
+			where: {
+				sender
+			},
+			include: {
+				user: {
+					select: {
+						email: true
+					}
+				}
+			}
+		});
+		return userResponse;
+	}
 }

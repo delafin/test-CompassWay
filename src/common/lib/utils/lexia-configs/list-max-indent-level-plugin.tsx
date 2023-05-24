@@ -8,7 +8,6 @@ import {
 	$isRangeSelection,
 	COMMAND_PRIORITY_HIGH,
 	INDENT_CONTENT_COMMAND,
-	LexicalNode,
 	RangeSelection
 } from 'lexical';
 

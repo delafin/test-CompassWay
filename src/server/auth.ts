@@ -69,7 +69,7 @@ export const authOptions: NextAuthOptions = {
 		// 		id: user.id
 		// 	}
 		// })
-		session: async ({ session, token }) => {
+		session: ({ session, token }) => {
 			if (session?.user) {
 				session.user.id = token.uid!; // token.sub
 				session.user.login = token.login!;
@@ -77,7 +77,7 @@ export const authOptions: NextAuthOptions = {
 			}
 			return session;
 		},
-		jwt: async ({ user, token }) => {
+		jwt: ({ user, token }) => {
 			if (user) {
 				token.uid = user.id;
 				token.login = user.login!;
@@ -85,7 +85,7 @@ export const authOptions: NextAuthOptions = {
 			}
 			return token;
 		},
-		async redirect({ url, baseUrl }) {
+		redirect({ url, baseUrl }) {
 			return baseUrl;
 		}
 	},
@@ -102,6 +102,7 @@ export const authOptions: NextAuthOptions = {
 					};
 					// const user = async userValidationCredentials(credentials.email, credentials.password)
 					const user = await userValidationEmail(email);
+					console.log(user);
 					if (!user || !user?.password) {
 						throw new Error(`The login or password you entered is incorrect.`);
 					} else {
@@ -132,9 +133,10 @@ export const authOptions: NextAuthOptions = {
 		 */
 	]
 	// pages: {
-	// 	signIn: '/as',
+	// 	signIn: '/',
 	// 	signOut: '/',
-	// 	newUser: '/dashboard'
+	// 	newUser: '/dashboard',
+	// 	error: '/'
 	// }
 };
 

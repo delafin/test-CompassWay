@@ -1,7 +1,6 @@
 import { useState } from 'react';
 
 import { NextPage } from 'next';
-import Error from 'next/error';
 
 import { TRANSFORMERS } from '@lexical/markdown';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
@@ -17,13 +16,14 @@ import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import clsx from 'clsx';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { fetchNewLetter } from '~/common/lib/utils/prisma';
 import AutoLinkPlugin from '~lib/utils/lexia-configs/auto-link-plugin';
 import CodeHighlightPlugin from '~lib/utils/lexia-configs/code-highlight-plugin';
 import { lexicalConfig } from '~lib/utils/lexia-configs/lexia-config';
 import ListMaxIndentLevelPlugin from '~lib/utils/lexia-configs/list-max-indent-level-plugin';
 import ToolbarPlugin from '~lib/utils/lexia-configs/toolbar-plugin';
-import { useCreateEmailMutation } from '~store/compass-way/email-handler';
+import { usePushNewMessageMutation } from '~store/db/prisma-handler';
+
+import { userCreateMessage } from '~server/db';
 
 // import TreeViewPlugin from './plugins/TreeViewPlugin';
 import StatusMsg from '../status-msg/status-msg';
@@ -38,7 +38,7 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId, userSender }) => {
 	const [successMsg, setSuccessMsg] = useState<string>('');
 	const [errorMsg, setErrorMsg] = useState<string>('');
 
-	const [uploadTrigger, { isLoading, status, error, isSuccess, isError }] = useCreateEmailMutation();
+	const [sendEmail, { isError, isLoading, error }] = usePushNewMessageMutation();
 
 	//  Lexical Settings
 
@@ -91,45 +91,25 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId, userSender }) => {
 		onSubmit: async (values, { setSubmitting, resetForm }) => {
 			setErrorMsg(() => '');
 			setSuccessMsg(() => '');
-			const data = await uploadTrigger({
-				sender: 1,
+			await sendEmail({
+				sender: userId,
 				recipient: values.recipient,
 				subject: values.subject,
 				message: values.message
 			});
-			switch (status) {
-				case 'fulfilled':
-					setSuccessMsg(() => 'You have successfully sent a message!');
-					break;
-				case 'rejected':
-					setErrorMsg(() =>
-						typeof (data as TFetchedError).error.data === 'string'
-							? (data as TFetchedError).error.data
-							: (data as TFetchedError).error.data.detail
-					);
-					break;
-				default:
-					console.log(data);
-					setErrorMsg(() => 'Something went wrong!');
-					break;
+
+			if (isError) {
+				setErrorMsg(() =>
+					(error as { data: { message: string } }).data.message
+						? (error as { data: { message: string } }).data.message
+						: 'Something went wrong!'
+				);
+			} else {
+				setSuccessMsg(() => 'You have successfully sent a message!');
 			}
 
+			resetForm();
 			setSubmitting(false);
-			// try {
-			// 	const data = uploadTrigger({
-			// 		// id: userId,
-			// 		sender: 1,
-			// 		// sender: values.sender,
-			// 		recipient: values.recipient,
-			// 		subject: values.subject,
-			// 		message: values.message
-			// 	});
-
-			// 	setSuccessMsg(() => 'You have successfully sent a message!');
-			// } catch (err: any) {
-			// 	setErrorMsg(() => err.message);
-			// }
-			// setSubmitting(false);
 		}
 	});
 
@@ -238,7 +218,7 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId, userSender }) => {
 						<div className='group relative'>
 							<input
 								id='subject'
-								type='email'
+								type='text'
 								autoComplete='on'
 								placeholder=' '
 								{...formikSendEmail.getFieldProps('subject')}
@@ -309,7 +289,9 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId, userSender }) => {
 								<MarkdownShortcutPlugin transformers={TRANSFORMERS} />
 								<OnChangePlugin
 									onChange={(editorState) => {
-										formikSendEmail.setFieldValue('message', JSON.stringify(editorState));
+										void (async () => {
+											await formikSendEmail.setFieldValue('message', JSON.stringify(editorState));
+										})();
 									}}
 								/>
 							</div>

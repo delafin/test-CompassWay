@@ -1,7 +1,6 @@
 import { GetServerSideProps, type NextPage } from 'next';
-import { Session, User } from 'next-auth';
+import { User } from 'next-auth';
 import { getServerSession } from 'next-auth/next';
-import { getSession } from 'next-auth/react';
 
 import EmailForm from '~/common/components/email-form/email-form';
 import { authOptions } from '~/server/auth';

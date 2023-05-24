@@ -7,7 +7,7 @@ import router from 'next/router';
 import clsx from 'clsx';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { fetchNewUser } from '~/common/lib/utils/prisma';
+import { usePushNewUserMutation } from '~store/db/prisma-handler';
 
 import { Icons } from '~ui/shadcn-ui/icons';
 
@@ -79,14 +79,14 @@ const FormSignIn: NextPage<FormProps> = ({ isSignUp, setIsSignUp }) => {
 				redirect: false,
 				callbackUrl: '/dashboard'
 			})
-				.then((result) => {
+				.then(async (result) => {
 					if (!result?.ok && typeof result?.error === 'string') {
 						setErrorMsg(() => result.error!);
 					}
-					router.push('/dashboard');
+					await router.push('/dashboard');
 				})
-				.catch((err) => {
-					setErrorMsg(() => (err.message as string) ?? 'Something went wrong');
+				.catch((err: { message: string }) => {
+					setErrorMsg(() => err.message ?? 'Something went wrong');
 				});
 			setSubmitting(false);
 		}
@@ -233,7 +233,11 @@ const FormSignIn: NextPage<FormProps> = ({ isSignUp, setIsSignUp }) => {
 			<div className='mx-auto mt-5 flex w-full flex-col items-center justify-center gap-5'>
 				<button
 					disabled={formikSignIn.isSubmitting ? true : false}
-					onClick={async () => await signIn('google', { callbackUrl: '/dashboard' })}
+					onClick={() =>
+						void (async () => {
+							await signIn('google', { callbackUrl: '/dashboard' });
+						})()
+					}
 					className={clsx(
 						'block relative mx-auto font-medium mt-6 cursor-pointer overflow-hidden rounded-md px-4 py-2 text-center text-white w-full',
 						{
@@ -268,7 +272,7 @@ export const FormSignUp: NextPage<FormProps> = ({ isSignUp, setIsSignUp }) => {
 	const [passwordShow, setPasswordShow] = useState<boolean>(false);
 	const [successMsg, setSuccessMsg] = useState<string>('');
 	const [errorMsg, setErrorMsg] = useState<string>('');
-
+	const [user, { isError, isSuccess, data, error, status }] = usePushNewUserMutation();
 	const formikSignUp = useFormik({
 		initialValues: {
 			userFullName: '',
@@ -294,11 +298,11 @@ export const FormSignUp: NextPage<FormProps> = ({ isSignUp, setIsSignUp }) => {
 					'userLogin',
 					'Please, use underscores or dashes instead of spaces!',
 					(userLogin) => !userLogin.includes(' ')
-				)
-				.matches(
-					/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[\w.@+-])(?=.{3,})$/,
-					'Please, use more than 3 Characters, Letters, digits and `@/./+/-/_` only!'
 				),
+			// .matches(
+			// 	/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[\w.@+-])(?=.{150,})$/,
+			// 	'Please, use more than 3 Characters, Letters, digits and `@/./+/-/_` only!'
+			// ),
 			userEmail: Yup.string()
 				.typeError('Incorrect data type!')
 				.email('Please, use a valid email address')
@@ -326,19 +330,23 @@ export const FormSignUp: NextPage<FormProps> = ({ isSignUp, setIsSignUp }) => {
 		onSubmit: async (values, { setSubmitting, resetForm }) => {
 			setErrorMsg(() => '');
 			setSuccessMsg(() => '');
-			try {
-				const result = await fetchNewUser({
-					name: values.userFullName,
-					password: values.userPassword,
-					login: values.userLogin,
-					email: values.userEmail
-				});
+
+			await user({
+				name: values.userFullName,
+				password: values.userPassword,
+				login: values.userLogin,
+				email: values.userEmail
+			});
+			if (isError) {
+				setErrorMsg(() =>
+					(error as { data: { message: string } }).data.message
+						? (error as { data: { message: string } }).data.message
+						: 'Something went wrong!'
+				);
+			} else {
 				setSuccessMsg(() => 'You have successfully registered, now you can login with your credentials!');
-			} catch (err: any) {
-				setErrorMsg(() => err.message as string);
 			}
-			console.log(successMsg);
-			console.log(errorMsg);
+
 			setSubmitting(false);
 		}
 	});
@@ -600,8 +608,10 @@ export const FormSignUp: NextPage<FormProps> = ({ isSignUp, setIsSignUp }) => {
 										type='checkbox'
 										{...formikSignUp.getFieldProps('userAgree')}
 										className={clsx('peer appearance-none absolute', {
-											'': formikSignUp.touched.userAgree && formikSignUp.errors.userAgree,
-											'': !formikSignUp.touched.userAgree || !formikSignUp.errors.userAgree
+											'text-red-500 dark:text-red-500':
+												formikSignUp.touched.userAgree && formikSignUp.errors.userAgree,
+											'text-black dark:text-white':
+												!formikSignUp.touched.userAgree || !formikSignUp.errors.userAgree
 										})}
 									/>
 									<div className='relative h-full w-full opacity-0 peer-checked:opacity-100'>

@@ -3,7 +3,7 @@ import axios from 'axios';
 import type { AxiosError, AxiosRequestConfig } from 'axios';
 
 export const axiosBaseQuery =
-	(
+	<D>(
 		{
 			baseUrl,
 			baseHeaders,
@@ -17,8 +17,8 @@ export const axiosBaseQuery =
 		{
 			url: string;
 			method: AxiosRequestConfig['method'];
-			data?: AxiosRequestConfig['data'];
-			params?: AxiosRequestConfig['params'];
+			data?: D;
+			params?: unknown;
 			headers?: AxiosRequestConfig['headers'];
 			auth?: AxiosRequestConfig['auth'];
 		},
@@ -37,7 +37,7 @@ export const axiosBaseQuery =
 			});
 			return { data: result.data };
 		} catch (axiosError) {
-			let err = axiosError as AxiosError;
+			const err = axiosError as AxiosError;
 			return {
 				error: {
 					status: err.response?.status,

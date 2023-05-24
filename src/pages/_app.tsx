@@ -1,30 +1,27 @@
 import { type Session } from 'next-auth';
 import { SessionProvider } from 'next-auth/react';
 import { type AppType } from 'next/app';
+import { useRouter } from 'next/router';
 
 import { ApiProvider } from '@reduxjs/toolkit/dist/query/react';
 import Layout from '~/common/layout/layout';
-import { compassWayApi } from '~store/compass-way/email-handler';
+import { dbApi } from '~store/db/prisma-handler';
 import { wrapper } from '~store/store';
 
 import '~/styles/globals.css';
 
-const MyApp: AppType<{ session: Session | null }> = ({
-	Component,
-	pageProps: { session, ...pageProps },
-	...appProps
-}) => {
+const MyApp: AppType<{ session: Session | null }> = ({ Component, pageProps: { session, ...pageProps } }) => {
+	const router = useRouter();
 	const getContent = () => {
-		// Array of all the paths that doesn't need layout
-		if ([`/`].includes(appProps.router.pathname))
+		if ([`/`].includes(router.pathname))
 			return (
-				<ApiProvider api={compassWayApi}>
+				<ApiProvider api={dbApi}>
 					<Component {...pageProps} />
 				</ApiProvider>
 			);
 
 		return (
-			<ApiProvider api={compassWayApi}>
+			<ApiProvider api={dbApi}>
 				<Layout>
 					<Component {...pageProps} />
 				</Layout>
@@ -33,25 +30,6 @@ const MyApp: AppType<{ session: Session | null }> = ({
 	};
 
 	return <SessionProvider session={session}>{getContent()}</SessionProvider>;
-
-	// Use a LayoutComponent variable
-	// that switches to actual Layout or React.Fragment (no layout)
-	// accordingly to pathname:
-
-	// You can use includes() to check only one path without nesting:
-	// const isLayoutNeeded = [`/dashboard`].includes(appProps.router.pathname);
-	// You can use path.startsWith to check all the paths, example:
-	// 	const isLayoutNeeded = appProps.router.pathname.startsWith(`/dashboard`);
-	// 	const LayoutComponent = isLayoutNeeded ? Layout : React.Fragment;
-
-	// 	return (
-	// 		<SessionProvider session={session}>
-	// 			<LayoutComponent>
-	// 				<Component {...pageProps} />
-	// 			</LayoutComponent>
-	// 		</SessionProvider>
-	// 	);
 };
 
-// export default MyApp;
 export default wrapper.withRedux(MyApp);
