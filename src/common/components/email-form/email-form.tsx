@@ -25,6 +25,7 @@ import CodeHighlightPlugin from '~lib/utils/lexia-configs/code-highlight-plugin'
 import { lexicalConfig } from '~lib/utils/lexia-configs/lexia-config';
 import ListMaxIndentLevelPlugin from '~lib/utils/lexia-configs/list-max-indent-level-plugin';
 import ToolbarPlugin from '~lib/utils/lexia-configs/toolbar-plugin';
+import ToolbarPluginTailwind from '~lib/utils/lexia-configs/toolbar-plugin-tailwind';
 import { usePushNewMessageMutation } from '~store/db/prisma-handler';
 
 import { userCreateMessage } from '~server/db';
@@ -264,6 +265,7 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId, userSender }) => {
 					{/* Rich Text */}
 					<LexicalComposer initialConfig={lexicalConfig('')}>
 						<div className='text-black relative leading-5 font-normal text-left mx-auto my-5 rounded-t-[10px] rounded-sm w-full'>
+							<ToolbarPluginTailwind />
 							<ToolbarPlugin />
 							<div className='relative bg-white'>
 								<RichTextPlugin
