@@ -265,7 +265,7 @@ const EmailForm: NextPage<TProps> = ({ userEmail, userId, userSender }) => {
 					{/* Rich Text */}
 					<LexicalComposer initialConfig={lexicalConfig('')}>
 						<div className='text-black relative leading-5 font-normal text-left mx-auto my-5 rounded-t-[10px] rounded-sm w-full'>
-							<ToolbarPluginTailwind />
+							{/* <ToolbarPluginTailwind /> */}
 							<ToolbarPlugin />
 							<div className='relative bg-white'>
 								<RichTextPlugin
